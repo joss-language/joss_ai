@@ -7,7 +7,7 @@ El proyecto consumidor solo necesita Joss 3.6.0 o posterior. No necesita Go, Pyt
 ## Instalacion
 
 ```bash
-joss pub add joss_ai 2.0.0
+joss pub add joss_ai 2.0.1
 ```
 
 Al iniciar Joss, el cargador descubre los paquetes instalados y registra `AI` y `ChatClient` automaticamente.
