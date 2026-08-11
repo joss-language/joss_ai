@@ -44,7 +44,7 @@ $respuesta = AI::client()
 ```joss
 AI::client()
     ->user("Escribe una bienvenida")
-    ->stream(function ($chunk) {
+    ->stream(func ($chunk) {
         Console::log($chunk)
     })
 ```

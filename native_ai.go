@@ -6,7 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"net/http"
 	"os"
 
@@ -375,7 +375,7 @@ func (r *Runtime) aiChat(provider, model string, messages interface{}) interface
 	}
 	defer resp.Body.Close()
 
-	body, _ := ioutil.ReadAll(resp.Body)
+	body, _ := io.ReadAll(resp.Body)
 
 	var result map[string]interface{}
 	json.Unmarshal(body, &result)
