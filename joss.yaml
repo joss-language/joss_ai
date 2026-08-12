@@ -1,7 +1,7 @@
-me: joss_ai
+name: joss_ai
 version: 2.0.3
-description: Plugin oficial para integraciÃ³n con Inteligencia Artificial (AI y ChatClient) en Joss.
-repository: https://github.com/josprox/joss_ai
+description: Plugin oficial para integración con Inteligencia Artificial (AI y ChatClient) en Joss.
+repository: https://github.com/joss-language/joss_ai
 license: MIT
 type: joss
 environment:
