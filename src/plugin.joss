@@ -5,8 +5,8 @@ class AI {
 
     func chat($provider, $model, $messages) {
         $c = new ChatClient()
-        (empty($provider) == false) ? { $c->provider($provider) } : {}
-        (empty($model) == false) ? { $c->model($model) } : {}
+        (!empty($provider)) ? { $c->provider($provider) } : {}
+        (!empty($model)) ? { $c->model($model) } : {}
         foreach ($messages as $m) {
             ($m["role"] == "user") ? { $c->user($m["content"]) } : {}
             ($m["role"] == "system") ? { $c->system($m["content"]) } : {}
@@ -24,12 +24,12 @@ class ChatClient {
     }
 
     func provider($provider) {
-        (empty($provider) == false) ? { $this->provider_name = $provider } : {}
+        (!empty($provider)) ? { $this->provider_name = $provider } : {}
         return $this
     }
 
     func model($model) {
-        (empty($model) == false) ? { $this->model_name = $model } : {}
+        (!empty($model)) ? { $this->model_name = $model } : {}
         return $this
     }
 
@@ -77,11 +77,11 @@ class ChatClient {
             "Content-Type": "application/json"
         })
 
-        if (isset($res["choices"]) && count($res["choices"]) > 0) {
+        return (isset($res["choices"]) && count($res["choices"]) > 0) ? {
             return $res["choices"][0]["message"]["content"]
+        } : {
+            return (isset($res["error"])) ? $res["error"]["message"] : "Error al procesar respuesta de IA"
         }
-
-        return (isset($res["error"])) ? $res["error"]["message"] : "Error al procesar respuesta de IA"
     }
 
     func streamTo($ws) {
