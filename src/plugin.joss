@@ -77,11 +77,20 @@ class ChatClient {
             "Content-Type": "application/json"
         })
 
-        return (isset($res["choices"]) && count($res["choices"]) > 0) ? {
+        (!empty($res["choices"]) && count($res["choices"]) > 0) ? {
             return $res["choices"][0]["message"]["content"]
-        } : {
-            return (isset($res["error"])) ? $res["error"]["message"] : "Error al procesar respuesta de IA"
-        }
+        } : {}
+
+        (!empty($res["error"])) ? {
+            $err = $res["error"]
+            return (!empty($err["message"])) ? $err["message"] : JSON::stringify($err)
+        } : {}
+
+        (is_string($res) && !empty($res)) ? {
+            return $res
+        } : {}
+
+        return "Error al procesar respuesta de IA"
     }
 
     func streamTo($ws) {
