@@ -72,14 +72,20 @@ class ChatClient {
             "messages": $this->messages
         }
 
+        print("[AI] Solicitando respuesta a " . $this->provider_name . " (" . $this->model_name . ")...")
+
         $res = Http::json("POST", $url, $payload, {
             "Authorization": "Bearer " . $apiKey,
             "Content-Type": "application/json"
         })
 
         (!empty($res["choices"]) && count($res["choices"]) > 0) ? {
-            return $res["choices"][0]["message"]["content"]
+            $answer = $res["choices"][0]["message"]["content"]
+            print("[AI Success] Respuesta recibida con éxito (" . len($answer) . " bytes)")
+            return $answer
         } : {}
+
+        print("[AI Debug Response] " . JSON::stringify($res))
 
         (!empty($res["error"])) ? {
             $err = $res["error"]
@@ -90,7 +96,7 @@ class ChatClient {
             return $res
         } : {}
 
-        return "Error al procesar respuesta de IA"
+        return "Error al procesar respuesta de IA: " . JSON::stringify($res)
     }
 
     func streamTo($ws) {
