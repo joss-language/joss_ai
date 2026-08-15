@@ -79,8 +79,10 @@ class ChatClient {
             "Content-Type": "application/json"
         })
 
-        (!empty($res["choices"]) && count($res["choices"]) > 0) ? {
-            $answer = $res["choices"][0]["message"]["content"]
+        $choices = $res["choices"]
+        (!empty($choices) && count($choices) > 0) ? {
+            $msg = $choices[0]["message"]
+            $answer = $msg["content"]
             print("[AI Success] Respuesta recibida con éxito (" . len($answer) . " bytes)")
             return $answer
         } : {}
