@@ -1,60 +1,92 @@
 class AI {
-    function client() {
+    func client() {
         return new ChatClient()
     }
 
-    function chat($provider, $model, $messages) {
-        return Plugin::call("joss_ai", "chat", [$provider, $model, $messages])
+    func chat($provider, $model, $messages) {
+        $c = new ChatClient()
+        (empty($provider) == false) ? { $c->provider($provider) } : {}
+        (empty($model) == false) ? { $c->model($model) } : {}
+        foreach ($messages as $m) {
+            ($m["role"] == "user") ? { $c->user($m["content"]) } : {}
+            ($m["role"] == "system") ? { $c->system($m["content"]) } : {}
+            ($m["role"] == "assistant") ? { $c->assistant($m["content"]) } : {}
+        }
+        return $c->call()
     }
 }
 
 class ChatClient {
     Init constructor() {
-        $this->provider = ""
-        $this->model = ""
+        $this->provider_name = env("AI_PROVIDER", "groq")
+        $this->model_name = env("AI_MODEL", "llama-3.3-70b-versatile")
         $this->messages = []
     }
 
-    function provider($provider) {
-        $this->provider = $provider
+    func provider($provider) {
+        (empty($provider) == false) ? { $this->provider_name = $provider } : {}
         return $this
     }
 
-    function model($model) {
-        $this->model = $model
+    func model($model) {
+        (empty($model) == false) ? { $this->model_name = $model } : {}
         return $this
     }
 
-    function user($content) {
-        $this->messages[] = {"role": "user", "content": $content}
+    func user($content) {
+        $this->messages = append($this->messages, {"role": "user", "content": $content})
         return $this
     }
 
-    function prompt($content) {
+    func prompt($content) {
         return $this->user($content)
     }
 
-    function system($content) {
-        $this->messages[] = {"role": "system", "content": $content}
+    func system($content) {
+        $this->messages = append($this->messages, {"role": "system", "content": $content})
         return $this
     }
 
-    function assistant($content) {
-        $this->messages[] = {"role": "assistant", "content": $content}
+    func assistant($content) {
+        $this->messages = append($this->messages, {"role": "assistant", "content": $content})
         return $this
     }
 
-    function call() {
-        return Plugin::call("joss_ai", "content", [$this->provider, $this->model, $this->messages])
-    }
+    func call() {
+        $apiKey = ""
+        $url = ""
+        ($this->provider_name == "groq") ? {
+            $apiKey = env("GROQ_API_KEY", "")
+            $url = "https://api.groq.com/openai/v1/chat/completions"
+        } : {
+            $apiKey = env("OPENAI_API_KEY", "")
+            $url = "https://api.openai.com/v1/chat/completions"
+        }
 
-    function stream($callback) {
-        return Plugin::stream("joss_ai", "stream", [$this->provider, $this->model, $this->messages], $callback)
-    }
+        (empty($apiKey)) ? {
+            return "Error: Falta configurar la API Key de IA en el archivo .env"
+        } : {}
 
-    function streamTo($ws) {
-        return Plugin::stream("joss_ai", "stream", [$this->provider, $this->model, $this->messages], function ($chunk) {
-            $ws->send(JSON::encode({"type": "chunk", "content": $chunk}))
+        $payload = {
+            "model": $this->model_name,
+            "messages": $this->messages
+        }
+
+        $res = Http::json("POST", $url, $payload, {
+            "Authorization": "Bearer " . $apiKey,
+            "Content-Type": "application/json"
         })
+
+        if (isset($res["choices"]) && count($res["choices"]) > 0) {
+            return $res["choices"][0]["message"]["content"]
+        }
+
+        return (isset($res["error"])) ? $res["error"]["message"] : "Error al procesar respuesta de IA"
+    }
+
+    func streamTo($ws) {
+        $response = $this->call()
+        $ws->send(JSON::stringify({"type": "chunk", "content": $response}))
+        return $response
     }
 }
