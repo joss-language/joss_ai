@@ -1,9 +1,9 @@
-class AI {
-    func client() {
+public class AI {
+    public func client() {
         return new ChatClient()
     }
 
-    func chat($provider, $model, $messages) {
+    public func chat(mixed $provider, mixed $model, mixed $messages) {
         $c = new ChatClient()
         (!empty($provider)) ? { $c->provider($provider) } : {}
         (!empty($model)) ? { $c->model($model) } : {}
@@ -16,43 +16,43 @@ class AI {
     }
 }
 
-class ChatClient {
+public class ChatClient {
     Init constructor() {
         $this->provider_name = env("AI_PROVIDER", "groq")
         $this->model_name = env("AI_MODEL", "llama-3.3-70b-versatile")
         $this->messages = []
     }
 
-    func provider($provider) {
+    public func provider(mixed $provider) {
         (!empty($provider)) ? { $this->provider_name = $provider } : {}
         return $this
     }
 
-    func model($model) {
+    public func model(mixed $model) {
         (!empty($model)) ? { $this->model_name = $model } : {}
         return $this
     }
 
-    func user($content) {
+    public func user(mixed $content) {
         $this->messages = append($this->messages, {"role": "user", "content": $content})
         return $this
     }
 
-    func prompt($content) {
+    public func prompt(mixed $content) {
         return $this->user($content)
     }
 
-    func system($content) {
+    public func system(mixed $content) {
         $this->messages = append($this->messages, {"role": "system", "content": $content})
         return $this
     }
 
-    func assistant($content) {
+    public func assistant(mixed $content) {
         $this->messages = append($this->messages, {"role": "assistant", "content": $content})
         return $this
     }
 
-    func call() {
+    public func call() {
         $apiKey = ""
         $url = ""
         ($this->provider_name == "groq") ? {
@@ -101,7 +101,7 @@ class ChatClient {
         return "Error al procesar respuesta de IA: " . JSON::stringify($res)
     }
 
-    func streamTo($ws) {
+    public func streamTo(mixed $ws) {
         $response = $this->call()
         $ws->send(JSON::stringify({"type": "chunk", "content": $response}))
         return $response
