@@ -1,5 +1,5 @@
 name: joss_ai
-version: 2.0.7
+version: 2.0.8
 description: Plugin oficial para integración con Inteligencia Artificial (AI y ChatClient) en Joss.
 repository: https://github.com/joss-language/joss_ai
 license: MIT
@@ -8,3 +8,8 @@ environment:
   joss: ">=3.6.7"
 entry:
   main: src/plugin.joss
+commands:
+  ai:activate:
+    description: "Configura proveedores y modelos de Inteligencia Artificial (Groq, OpenAI, Gemini)"
+    usage: "joss ai:activate"
+    protected: true
